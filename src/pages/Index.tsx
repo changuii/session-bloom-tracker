@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { StatsView } from '@/components/StatsView';
 import { CalendarView } from '@/components/CalendarView';
+import { ReflectionView } from '@/components/ReflectionView';
 import { SettingsView } from '@/components/SettingsView';
 import { SessionData, PomodoroSettings } from '@/types/pomodoro';
 
@@ -15,7 +16,9 @@ const Index = () => {
     longBreak: 15,
     longBreakInterval: 4,
     autoStart: false,
-    soundEnabled: true
+    soundEnabled: true,
+    notificationEnabled: true,
+    streakThreshold: 25
   });
 
   // Load data from localStorage on mount
@@ -29,6 +32,11 @@ const Index = () => {
     
     if (savedSettings) {
       setSettings(JSON.parse(savedSettings));
+    }
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
     }
   }, []);
 
@@ -46,31 +54,38 @@ const Index = () => {
     setSessions(prev => [...prev, session]);
   };
 
+  const updateSession = (sessionId: string, updates: Partial<SessionData>) => {
+    setSessions(prev => 
+      prev.map(session => 
+        session.id === sessionId ? { ...session, ...updates } : session
+      )
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 bg-paper-texture">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">회고 포모도로</h1>
-          <p className="text-gray-600">집중하고, 회고하고, 성장하세요</p>
+          <h1 className="text-4xl font-bold text-red-800 mb-2 font-handwriting">🍅 회고 토마토 타이머</h1>
+          <p className="text-red-600">집중하고, 회고하고, 성장하세요</p>
         </div>
 
-        <Tabs defaultValue="timer" className="max-w-4xl mx-auto">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="timer" className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-              타이머
+        <Tabs defaultValue="timer" className="max-w-6xl mx-auto">
+          <TabsList className="grid w-full grid-cols-5 mb-8 bg-white/80 backdrop-blur-sm shadow-sm">
+            <TabsTrigger value="timer" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
+              🍅 타이머
             </TabsTrigger>
-            <TabsTrigger value="stats" className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-              통계
+            <TabsTrigger value="stats" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
+              📊 통계
             </TabsTrigger>
-            <TabsTrigger value="calendar" className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              달력
+            <TabsTrigger value="calendar" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
+              📅 달력
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
-              설정
+            <TabsTrigger value="reflection" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
+              📝 회고
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
+              ⚙️ 설정
             </TabsTrigger>
           </TabsList>
 
@@ -82,11 +97,19 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="stats">
-            <StatsView sessions={sessions} />
+            <StatsView sessions={sessions} settings={settings} />
           </TabsContent>
 
           <TabsContent value="calendar">
             <CalendarView sessions={sessions} />
+          </TabsContent>
+
+          <TabsContent value="reflection">
+            <ReflectionView 
+              sessions={sessions} 
+              onUpdateSession={updateSession}
+              geminiApiKey={settings.geminiApiKey}
+            />
           </TabsContent>
 
           <TabsContent value="settings">

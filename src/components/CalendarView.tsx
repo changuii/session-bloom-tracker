@@ -18,21 +18,17 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
-    // Get first day of month and number of days
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
 
-    // Create calendar grid
     const calendarDays = [];
     
-    // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       calendarDays.push(null);
     }
     
-    // Add days of month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = new Date(year, month, day).toISOString().split('T')[0];
       const dayFocusSessions = sessions.filter(s => 
@@ -49,7 +45,6 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
       });
     }
 
-    // Get selected date data
     const selectedSessions = selectedDate ? 
       sessions.filter(s => s.date === selectedDate && s.type === 'focus' && s.completed) : [];
     
@@ -74,12 +69,10 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
     });
   };
 
-  const getIntensityClass = (focusTime: number) => {
-    if (focusTime === 0) return 'bg-gray-100';
-    if (focusTime < 30) return 'bg-green-200';
-    if (focusTime < 60) return 'bg-green-300';
-    if (focusTime < 120) return 'bg-green-400';
-    return 'bg-green-500';
+  const renderTomatoes = (sessionCount: number) => {
+    return Array.from({ length: Math.min(sessionCount, 6) }, (_, i) => (
+      <span key={i} className="text-red-500 text-xs">🍅</span>
+    ));
   };
 
   const monthName = currentDate.toLocaleDateString('ko-KR', { 
@@ -89,15 +82,16 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-white/90 backdrop-blur-sm border-red-200">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{monthName}</CardTitle>
+            <CardTitle className="text-red-800 font-handwriting">📅 {monthName}</CardTitle>
             <div className="flex space-x-2">
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => navigateMonth('prev')}
+                className="border-red-300 text-red-700 hover:bg-red-50"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -105,6 +99,7 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
                 variant="outline" 
                 size="sm"
                 onClick={() => navigateMonth('next')}
+                className="border-red-300 text-red-700 hover:bg-red-50"
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
@@ -114,7 +109,7 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
         <CardContent>
           <div className="grid grid-cols-7 gap-1 mb-4">
             {['일', '월', '화', '수', '목', '금', '토'].map(day => (
-              <div key={day} className="text-center text-sm font-medium text-gray-500 p-2">
+              <div key={day} className="text-center text-sm font-medium text-red-600 p-2">
                 {day}
               </div>
             ))}
@@ -128,12 +123,19 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
                 onClick={() => day && setSelectedDate(day.dateStr)}
               >
                 {day && (
-                  <div className={`w-full h-full rounded flex flex-col items-center justify-center text-xs transition-colors hover:opacity-80 ${getIntensityClass(day.focusTime)}`}>
-                    <span className="font-medium">{day.day}</span>
+                  <div className={`w-full h-full rounded-lg flex flex-col items-center justify-center text-xs transition-all hover:scale-105 border-2 ${
+                    day.hasData 
+                      ? 'bg-red-50 border-red-200 hover:bg-red-100' 
+                      : 'bg-white border-red-100 hover:bg-red-50'
+                  }`}>
+                    <span className="font-medium text-red-800 mb-1">{day.day}</span>
                     {day.hasData && (
-                      <span className="text-xs text-gray-600">
-                        {Math.round(day.focusTime)}분
-                      </span>
+                      <div className="flex flex-wrap justify-center gap-0.5">
+                        {renderTomatoes(day.sessionCount)}
+                        {day.sessionCount > 6 && (
+                          <span className="text-xs text-red-400">+{day.sessionCount - 6}</span>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
@@ -141,25 +143,26 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
             ))}
           </div>
 
-          <div className="flex items-center justify-center space-x-2 mt-4 text-xs text-gray-500">
-            <span>적음</span>
-            <div className="flex space-x-1">
-              <div className="w-3 h-3 bg-gray-100 rounded"></div>
-              <div className="w-3 h-3 bg-green-200 rounded"></div>
-              <div className="w-3 h-3 bg-green-300 rounded"></div>
-              <div className="w-3 h-3 bg-green-400 rounded"></div>
-              <div className="w-3 h-3 bg-green-500 rounded"></div>
+          <div className="flex items-center justify-center space-x-4 mt-6 text-xs text-red-600">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-white border border-red-100 rounded"></div>
+              <span>토마토 없음</span>
             </div>
-            <span>많음</span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-red-50 border border-red-200 rounded flex items-center justify-center">
+                <span className="text-red-500" style={{ fontSize: '8px' }}>🍅</span>
+              </div>
+              <span>토마토 완료</span>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       <Dialog open={!!selectedDate} onOpenChange={() => setSelectedDate(null)}>
-        <DialogContent>
+        <DialogContent className="bg-white/95 backdrop-blur-sm border-red-200">
           <DialogHeader>
-            <DialogTitle>
-              {selectedDate && new Date(selectedDate).toLocaleDateString('ko-KR', {
+            <DialogTitle className="text-red-800 font-handwriting">
+              📅 {selectedDate && new Date(selectedDate).toLocaleDateString('ko-KR', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
@@ -170,27 +173,27 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
           {selectedDateData.sessions.length > 0 ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
+                <div className="text-center p-4 bg-red-50 rounded-lg">
+                  <div className="text-2xl font-bold text-red-700">
                     {Math.round(selectedDateData.totalFocusTime)}분
                   </div>
-                  <div className="text-sm text-gray-500">총 집중 시간</div>
+                  <div className="text-sm text-red-600">총 집중 시간</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {selectedDateData.sessions.length}개
+                <div className="text-center p-4 bg-orange-50 rounded-lg">
+                  <div className="text-2xl font-bold text-orange-700 flex items-center justify-center">
+                    🍅 {selectedDateData.sessions.length}
                   </div>
-                  <div className="text-sm text-gray-500">완료 세션</div>
+                  <div className="text-sm text-orange-600">완료 토마토</div>
                 </div>
               </div>
 
               {selectedDateData.reflections.length > 0 && (
                 <div>
-                  <h4 className="font-medium mb-2">이날의 회고</h4>
+                  <h4 className="font-medium mb-3 text-red-800">📝 이날의 회고</h4>
                   <div className="space-y-2">
                     {selectedDateData.reflections.map((reflection, index) => (
-                      <div key={index} className="bg-gray-50 p-3 rounded text-sm">
-                        {reflection}
+                      <div key={index} className="bg-red-50 p-3 rounded-lg text-sm text-red-700 border border-red-200">
+                        🍅 <strong>토마토 {index + 1}:</strong> {reflection}
                       </div>
                     ))}
                   </div>
@@ -198,8 +201,9 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
               )}
             </div>
           ) : (
-            <div className="text-center text-gray-500 py-4">
-              이날은 완료된 세션이 없습니다.
+            <div className="text-center text-red-400 py-8">
+              <div className="text-4xl mb-2">🍅</div>
+              <p>이날은 완료된 토마토가 없습니다.</p>
             </div>
           )}
         </DialogContent>

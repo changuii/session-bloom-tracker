@@ -6,6 +6,9 @@ export interface PomodoroSettings {
   longBreakInterval: number; // every N sessions
   autoStart: boolean;
   soundEnabled: boolean;
+  notificationEnabled: boolean;
+  streakThreshold: number; // minimum minutes per day for streak
+  geminiApiKey?: string;
 }
 
 export interface SessionData {
@@ -15,6 +18,7 @@ export interface SessionData {
   duration: number; // in minutes
   completed: boolean;
   reflection?: string;
+  aiComment?: string;
   createdAt: number; // timestamp
 }
 
@@ -23,6 +27,13 @@ export interface DailyStats {
   totalFocusTime: number;
   completedSessions: number;
   reflections: string[];
+}
+
+export interface TimeSlotStats {
+  morning: number; // 6-12
+  afternoon: number; // 12-18
+  evening: number; // 18-24
+  night: number; // 0-6
 }
 
 export type TimerState = 'idle' | 'running' | 'paused' | 'completed';

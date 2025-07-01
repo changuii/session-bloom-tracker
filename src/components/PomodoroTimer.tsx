@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { ReflectionModal } from './ReflectionModal';
 import { PomodoroSettings, SessionData, TimerState, SessionType } from '@/types/pomodoro';
 import { Play, Pause, Square, RotateCcw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface PomodoroTimerProps {
   settings: PomodoroSettings;
@@ -19,6 +20,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
   const [sessionCount, setSessionCount] = useState(0);
   const [showReflection, setShowReflection] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
+  const { toast } = useToast();
 
   const getCurrentSessionDuration = () => {
     switch (currentSession) {
@@ -36,13 +38,13 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
   const getSessionLabel = () => {
     switch (currentSession) {
       case 'focus':
-        return `집중 세션 ${sessionCount + 1}`;
+        return `🍅 집중 토마토 ${sessionCount + 1}`;
       case 'shortBreak':
-        return '짧은 휴식';
+        return '☕ 짧은 휴식';
       case 'longBreak':
-        return '긴 휴식';
+        return '🌿 긴 휴식';
       default:
-        return '집중 세션';
+        return '🍅 집중 토마토';
     }
   };
 
@@ -52,9 +54,18 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const showNotification = (title: string, body: string) => {
+    if (settings.notificationEnabled && 'Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, {
+        body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico'
+      });
+    }
+  };
+
   const playNotificationSound = () => {
     if (settings.soundEnabled) {
-      // Simple beep sound using Web Audio API
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
@@ -86,12 +97,24 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
     onSessionComplete(sessionData);
     playNotificationSound();
 
+    // Show notification
     if (currentSession === 'focus') {
+      showNotification('🍅 토마토 완료!', `집중 세션 ${sessionCount + 1}을 완료했습니다. 잘하셨어요!`);
       setShowReflection(true);
+    } else {
+      showNotification('휴식 완료!', '휴식이 끝났습니다. 다음 세션을 시작하세요!');
     }
 
+    // Show toast
+    toast({
+      title: currentSession === 'focus' ? '🍅 토마토 완료!' : '휴식 완료!',
+      description: currentSession === 'focus' 
+        ? `집중 세션 ${sessionCount + 1}을 완료했습니다!` 
+        : '휴식이 끝났습니다. 다음 세션을 시작하세요!'
+    });
+
     setTimerState('completed');
-  }, [currentSession, currentSessionId, onSessionComplete, getCurrentSessionDuration, settings.soundEnabled]);
+  }, [currentSession, currentSessionId, onSessionComplete, sessionCount, settings.soundEnabled, settings.notificationEnabled, toast]);
 
   const nextSession = () => {
     if (currentSession === 'focus') {
@@ -157,7 +180,6 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
   const progress = ((getCurrentSessionDuration() - timeLeft) / getCurrentSessionDuration()) * 100;
 
   const handleReflectionSubmit = (reflection: string) => {
-    // Update the last session with reflection
     const sessionData: SessionData = {
       id: currentSessionId,
       date: new Date().toISOString().split('T')[0],
@@ -175,20 +197,26 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
 
   return (
     <div className="flex flex-col items-center space-y-6">
-      <Card className="w-full max-w-md shadow-lg">
+      <Card className="w-full max-w-md shadow-xl bg-white/90 backdrop-blur-sm border-red-200">
         <CardContent className="p-8 text-center">
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            <h2 className="text-2xl font-semibold text-red-800 mb-2 font-handwriting">
               {getSessionLabel()}
             </h2>
-            <div className="text-6xl font-mono font-bold text-gray-900 mb-4">
+            <div className="text-6xl font-mono font-bold text-red-900 mb-4 drop-shadow-sm">
               {formatTime(timeLeft)}
             </div>
-            <Progress value={progress} className="h-2 mb-4" />
-            <p className="text-sm text-gray-600">
-              {timerState === 'running' ? '진행 중' : 
-               timerState === 'paused' ? '일시정지' :
-               timerState === 'completed' ? '완료' : '준비'}
+            <Progress 
+              value={progress} 
+              className="h-3 mb-4" 
+              style={{
+                background: 'linear-gradient(90deg, #fecaca 0%, #fca5a5 50%, #f87171 100%)'
+              }}
+            />
+            <p className="text-sm text-red-600 font-medium">
+              {timerState === 'running' ? '🔥 진행 중' : 
+               timerState === 'paused' ? '⏸️ 일시정지' :
+               timerState === 'completed' ? '✅ 완료' : '⏳ 준비'}
             </p>
           </div>
 
@@ -197,7 +225,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
               <Button 
                 onClick={startTimer}
                 size="lg"
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-red-600 hover:bg-red-700 shadow-lg"
               >
                 <Play className="w-4 h-4 mr-2" />
                 {timerState === 'paused' ? '재개' : '시작'}
@@ -207,6 +235,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
                 onClick={pauseTimer}
                 size="lg"
                 variant="outline"
+                className="border-red-300 text-red-700 hover:bg-red-50"
               >
                 <Pause className="w-4 h-4 mr-2" />
                 일시정지
@@ -217,6 +246,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
               onClick={resetTimer}
               size="lg"
               variant="outline"
+              className="border-red-300 text-red-700 hover:bg-red-50"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               리셋
@@ -226,7 +256,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
               <Button 
                 onClick={nextSession}
                 size="lg"
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-orange-600 hover:bg-orange-700 shadow-lg"
               >
                 다음 세션
               </Button>
@@ -238,7 +268,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
               onClick={skipSession}
               variant="ghost"
               size="sm"
-              className="mt-4 text-gray-500"
+              className="mt-4 text-red-500 hover:bg-red-50"
             >
               <Square className="w-3 h-3 mr-1" />
               세션 완료
