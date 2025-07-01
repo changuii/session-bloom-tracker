@@ -1,4 +1,3 @@
-
 export interface PomodoroSettings {
   focusTime: number; // in minutes
   shortBreak: number; // in minutes
@@ -15,7 +14,7 @@ export interface SessionData {
   id: string;
   date: string; // ISO date string
   type: 'focus' | 'shortBreak' | 'longBreak';
-  duration: number; // in minutes
+  duration: number; // in seconds
   completed: boolean;
   reflection?: string;
   aiComment?: string;

@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -155,7 +154,7 @@ ${reflections.map((r, i) => `${i + 1}. ${r}`).join('\n')}
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+      <Card>
         <CardHeader>
           <CardTitle className="text-red-800 font-handwriting">📝 회고 기록</CardTitle>
         </CardHeader>
@@ -211,7 +210,7 @@ ${reflections.map((r, i) => `${i + 1}. ${r}`).join('\n')}
 
       <div className="space-y-4">
         {dailyReflections.length === 0 ? (
-          <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+          <Card>
             <CardContent className="text-center py-12">
               <div className="text-red-400 mb-4">
                 <Calendar className="w-16 h-16 mx-auto" />
@@ -222,7 +221,7 @@ ${reflections.map((r, i) => `${i + 1}. ${r}`).join('\n')}
           </Card>
         ) : (
           dailyReflections.map(({ date, sessions, totalFocusTime, reflections, hasReflections }) => (
-            <Card key={date} className="bg-white/90 backdrop-blur-sm border-red-200">
+            <Card key={date}>
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-red-800 font-handwriting">
@@ -234,7 +233,7 @@ ${reflections.map((r, i) => `${i + 1}. ${r}`).join('\n')}
                   </CardTitle>
                   <div className="flex items-center gap-4">
                     <div className="text-sm text-red-600">
-                      🍅 {sessions.length}개 완료 • {Math.round(totalFocusTime)}분 집중
+                      🍅 {sessions.length}개 완료 • {Math.round(totalFocusTime / 60)}분 집중
                     </div>
                     {hasReflections && (
                       <Button
@@ -260,7 +259,7 @@ ${reflections.map((r, i) => `${i + 1}. ${r}`).join('\n')}
                     <div key={session.id} className="p-4 bg-red-50 rounded-lg border border-red-100">
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-medium text-red-800">
-                          🍅 토마토 {index + 1} ({session.duration}분)
+                          🍅 토마토 {index + 1} ({Math.round(session.duration / 60)}분)
                         </h4>
                         <Button
                           onClick={() => handleEditReflection(session)}

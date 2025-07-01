@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,7 +81,7 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-red-800 font-handwriting">📅 {monthName}</CardTitle>

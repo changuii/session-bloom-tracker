@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PomodoroSettings, SessionData, TimeSlotStats } from '@/types/pomodoro';
@@ -12,7 +11,7 @@ interface StatsViewProps {
 export const StatsView = ({ sessions, settings }: StatsViewProps) => {
   const stats = useMemo(() => {
     const focusSessions = sessions.filter(s => s.type === 'focus' && s.completed);
-    const totalFocusTime = focusSessions.reduce((total, session) => total + session.duration, 0);
+    const totalFocusTime = focusSessions.reduce((total, session) => total + session.duration, 0); // in seconds
     const totalSessions = focusSessions.length;
 
     // Calculate streak
@@ -50,10 +49,9 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
       const dayFocusTime = focusSessions
         .filter(s => s.date === date)
         .reduce((total, session) => total + session.duration, 0);
-      
       return {
         day: dayName,
-        focusTime: Math.round(dayFocusTime),
+        focusTime: Math.round(dayFocusTime / 60), // minutes
         date,
         tomatoes: focusSessions.filter(s => s.date === date).length
       };
@@ -70,10 +68,9 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
       const dayFocusTime = focusSessions
         .filter(s => s.date === date)
         .reduce((total, session) => total + session.duration, 0);
-      
       return {
         date: new Date(date).getDate(),
-        focusTime: Math.round(dayFocusTime)
+        focusTime: Math.round(dayFocusTime / 60) // minutes
       };
     });
 
@@ -89,10 +86,10 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
     });
 
     const timeSlotData = [
-      { name: '오전 (6-12시)', value: Math.round(timeSlots.morning), color: '#fbbf24' },
-      { name: '오후 (12-18시)', value: Math.round(timeSlots.afternoon), color: '#f97316' },
-      { name: '저녁 (18-24시)', value: Math.round(timeSlots.evening), color: '#ef4444' },
-      { name: '심야 (0-6시)', value: Math.round(timeSlots.night), color: '#7c3aed' }
+      { name: '오전 (6-12시)', value: Math.round(timeSlots.morning / 60), color: '#fbbf24' },
+      { name: '오후 (12-18시)', value: Math.round(timeSlots.afternoon / 60), color: '#f97316' },
+      { name: '저녁 (18-24시)', value: Math.round(timeSlots.evening / 60), color: '#ef4444' },
+      { name: '심야 (0-6시)', value: Math.round(timeSlots.night / 60), color: '#7c3aed' }
     ].filter(slot => slot.value > 0);
 
     // Weekly comparison
@@ -103,16 +100,23 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
 
     const thisWeekTime = focusSessions
       .filter(s => new Date(s.date) >= thisWeekStart)
-      .reduce((total, session) => total + session.duration, 0);
+      .reduce((total, session) => total + session.duration, 0) / 60; // minutes
     
     const lastWeekTime = focusSessions
       .filter(s => {
         const sessionDate = new Date(s.date);
         return sessionDate >= lastWeekStart && sessionDate < thisWeekStart;
       })
-      .reduce((total, session) => total + session.duration, 0);
+      .reduce((total, session) => total + session.duration, 0) / 60; // minutes
 
-    const weeklyChange = lastWeekTime > 0 ? ((thisWeekTime - lastWeekTime) / lastWeekTime) * 100 : 0;
+    let weeklyChange = 0;
+    if (lastWeekTime > 0) {
+      weeklyChange = ((thisWeekTime - lastWeekTime) / lastWeekTime) * 100;
+    } else if (thisWeekTime > 0) {
+      weeklyChange = thisWeekTime * 100;
+    } else {
+      weeklyChange = 0;
+    }
 
     return {
       totalFocusTime,
@@ -121,7 +125,7 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
       weeklyData,
       monthlyData,
       timeSlotData,
-      averageSessionLength: totalSessions > 0 ? Math.round(totalFocusTime / totalSessions) : 0,
+      averageSessionLength: totalSessions > 0 ? Math.round((totalFocusTime / 60) / totalSessions) : 0,
       thisWeekTime: Math.round(thisWeekTime),
       lastWeekTime: Math.round(lastWeekTime),
       weeklyChange: Math.round(weeklyChange)
@@ -131,18 +135,18 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-red-600">총 집중 시간</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-700">
-              {Math.floor(stats.totalFocusTime / 60)}시간 {stats.totalFocusTime % 60}분
+              {Math.floor(stats.totalFocusTime / 3600)}시간 {Math.floor((stats.totalFocusTime % 3600) / 60)}분 {stats.totalFocusTime % 60}초
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-red-600">완료한 토마토</CardTitle>
           </CardHeader>
@@ -153,7 +157,7 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-red-600">현재 스트릭</CardTitle>
           </CardHeader>
@@ -164,7 +168,7 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-red-600">평균 토마토</CardTitle>
           </CardHeader>
@@ -177,7 +181,7 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+        <Card>
           <CardHeader>
             <CardTitle className="text-red-800 font-handwriting">📊 주간 집중 시간</CardTitle>
           </CardHeader>
@@ -206,7 +210,7 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+        <Card>
           <CardHeader>
             <CardTitle className="text-red-800 font-handwriting">🕐 시간대별 집중</CardTitle>
           </CardHeader>
@@ -236,7 +240,7 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
         </Card>
       </div>
 
-      <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+      <Card>
         <CardHeader>
           <CardTitle className="text-red-800 font-handwriting">📈 월간 집중 추이</CardTitle>
         </CardHeader>
@@ -264,7 +268,7 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+      <Card>
         <CardHeader>
           <CardTitle className="text-red-800 font-handwriting">📊 주간 비교</CardTitle>
         </CardHeader>
@@ -289,7 +293,7 @@ export const StatsView = ({ sessions, settings }: StatsViewProps) => {
       </Card>
 
       {stats.totalSessions === 0 && (
-        <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+        <Card>
           <CardContent className="text-center py-8">
             <div className="text-red-400 mb-4">
               🍅

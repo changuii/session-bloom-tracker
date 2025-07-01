@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,7 +70,7 @@ export const SettingsView = ({ settings, onSettingsChange }: SettingsViewProps) 
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+      <Card>
         <CardHeader>
           <CardTitle className="text-red-800 font-handwriting">🍅 타이머 설정</CardTitle>
         </CardHeader>
@@ -149,7 +148,7 @@ export const SettingsView = ({ settings, onSettingsChange }: SettingsViewProps) 
         </CardContent>
       </Card>
 
-      <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+      <Card>
         <CardHeader>
           <CardTitle className="text-red-800 font-handwriting">🔔 알림 설정</CardTitle>
         </CardHeader>
@@ -202,7 +201,7 @@ export const SettingsView = ({ settings, onSettingsChange }: SettingsViewProps) 
         </CardContent>
       </Card>
 
-      <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+      <Card>
         <CardHeader>
           <CardTitle className="text-red-800 font-handwriting">🤖 AI 설정</CardTitle>
         </CardHeader>
@@ -233,7 +232,7 @@ export const SettingsView = ({ settings, onSettingsChange }: SettingsViewProps) 
         </CardContent>
       </Card>
 
-      <Card className="bg-white/90 backdrop-blur-sm border-red-200">
+      <Card>
         <CardHeader>
           <CardTitle className="text-red-800 font-handwriting">💾 데이터 관리</CardTitle>
         </CardHeader>

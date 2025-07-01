@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +14,7 @@ interface PomodoroTimerProps {
 
 export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(settings.focusTime * 60);
+  const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
   const [timerState, setTimerState] = useState<TimerState>('idle');
   const [currentSession, setCurrentSession] = useState<SessionType>('focus');
   const [sessionCount, setSessionCount] = useState(0);
@@ -85,36 +85,28 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
   };
 
   const completeSession = useCallback(() => {
-    const sessionData: SessionData = {
-      id: currentSessionId || Date.now().toString(),
-      date: new Date().toISOString().split('T')[0],
-      type: currentSession,
-      duration: getCurrentSessionDuration() / 60,
-      completed: true,
-      createdAt: Date.now()
-    };
-
-    onSessionComplete(sessionData);
-    playNotificationSound();
-
-    // Show notification
+    // Only call onSessionComplete for non-focus sessions, or for focus sessions after reflection
     if (currentSession === 'focus') {
-      showNotification('🍅 토마토 완료!', `집중 세션 ${sessionCount + 1}을 완료했습니다. 잘하셨어요!`);
+      playNotificationSound();
       setShowReflection(true);
     } else {
+      const sessionData: SessionData = {
+        id: currentSessionId || Date.now().toString(),
+        date: new Date().toISOString().split('T')[0],
+        type: currentSession,
+        duration: getCurrentSessionDuration() - timeLeft,
+        completed: true,
+        createdAt: Date.now()
+      };
+      onSessionComplete(sessionData);
       showNotification('휴식 완료!', '휴식이 끝났습니다. 다음 세션을 시작하세요!');
+      toast({
+        title: '휴식 완료!',
+        description: '휴식이 끝났습니다. 다음 세션을 시작하세요!'
+      });
+      setTimerState('completed');
     }
-
-    // Show toast
-    toast({
-      title: currentSession === 'focus' ? '🍅 토마토 완료!' : '휴식 완료!',
-      description: currentSession === 'focus' 
-        ? `집중 세션 ${sessionCount + 1}을 완료했습니다!` 
-        : '휴식이 끝났습니다. 다음 세션을 시작하세요!'
-    });
-
-    setTimerState('completed');
-  }, [currentSession, currentSessionId, onSessionComplete, sessionCount, settings.soundEnabled, settings.notificationEnabled, toast]);
+  }, [currentSession, currentSessionId, onSessionComplete, getCurrentSessionDuration, settings.soundEnabled, settings.notificationEnabled, toast, timeLeft]);
 
   const nextSession = () => {
     if (currentSession === 'focus') {
@@ -142,16 +134,24 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
     if (currentSessionId === '') {
       setCurrentSessionId(Date.now().toString());
     }
+    setStartTimestamp(Date.now());
   };
 
   const pauseTimer = () => {
     setTimerState('paused');
+    if (startTimestamp) {
+      // Adjust timeLeft based on real elapsed time
+      const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
+      setTimeLeft((prev) => Math.max(prev - elapsed, 0));
+      setStartTimestamp(null);
+    }
   };
 
   const resetTimer = () => {
     setTimerState('idle');
     setTimeLeft(getCurrentSessionDuration());
     setCurrentSessionId('');
+    setStartTimestamp(null);
   };
 
   const skipSession = () => {
@@ -161,21 +161,29 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
   // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
-
     if (timerState === 'running' && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
+        if (startTimestamp) {
+          const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
+          const newTimeLeft = Math.max(getCurrentSessionDuration() - elapsed, 0);
+          setTimeLeft(newTimeLeft);
+          if (newTimeLeft <= 0) {
             completeSession();
-            return 0;
+            clearInterval(interval);
           }
-          return prev - 1;
-        });
+        }
       }, 1000);
     }
-
     return () => clearInterval(interval);
-  }, [timerState, timeLeft, completeSession]);
+  }, [timerState, startTimestamp, getCurrentSessionDuration, completeSession]);
+
+  // When timer is started or session changes, reset timeLeft and startTimestamp
+  useEffect(() => {
+    if (timerState === 'idle' || timerState === 'completed') {
+      setTimeLeft(getCurrentSessionDuration());
+      setStartTimestamp(null);
+    }
+  }, [currentSession, timerState, getCurrentSessionDuration]);
 
   const progress = ((getCurrentSessionDuration() - timeLeft) / getCurrentSessionDuration()) * 100;
 
@@ -184,20 +192,38 @@ export const PomodoroTimer = ({ settings, onSessionComplete }: PomodoroTimerProp
       id: currentSessionId,
       date: new Date().toISOString().split('T')[0],
       type: 'focus',
-      duration: settings.focusTime,
+      duration: getCurrentSessionDuration() - timeLeft,
       completed: true,
       reflection,
       createdAt: Date.now()
     };
-
     onSessionComplete(sessionData);
+    showNotification('🍅 토마토 완료!', `집중 세션 ${sessionCount + 1}을 완료했습니다. 잘하셨어요!`);
+    toast({
+      title: '🍅 토마토 완료!',
+      description: `집중 세션 ${sessionCount + 1}을 완료했습니다!`
+    });
     setShowReflection(false);
+    setTimerState('completed');
     nextSession();
   };
 
+  // Update browser tab title with remaining time
+  useEffect(() => {
+    if (timerState === 'running') {
+      document.title = `${formatTime(timeLeft)} - tomato!`;
+    } else if (timerState === 'paused') {
+      document.title = `⏸️ ${formatTime(timeLeft)} - tomato!`;
+    } else if (timerState === 'completed') {
+      document.title = `✅ tomato!`;
+    } else {
+      document.title = 'tomato!';
+    }
+  }, [timerState, timeLeft]);
+
   return (
     <div className="flex flex-col items-center space-y-6">
-      <Card className="w-full max-w-md shadow-xl bg-white/90 backdrop-blur-sm border-red-200">
+      <Card className="w-full max-w-md">
         <CardContent className="p-8 text-center">
           <div className="mb-6">
             <h2 className="text-2xl font-semibold text-red-800 mb-2 font-handwriting">
