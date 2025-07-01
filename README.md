@@ -1,73 +1,141 @@
-# Welcome to your Lovable project
+## 회고 포모도로 타이머
+- 쉽게 포모도로 타이머를 사용할 수 있게 해주고, 각 세션별로 회고를 도와준다.
 
-## Project info
+배포 링크: https://session-bloom-tracker.lovable.app/
 
-**URL**: https://lovable.dev/projects/cd81c43d-276d-4614-affb-ab5dd5cfa9ab
+## 목표
+- 간편하게 포모도로 타이머를 사용할 수 있다.
+	- 매 세션별로 회고를 작성해 최종 하루 회고를 작성할 수 있다.
+	- 달력, 스트릭 등으로 성장을 정량적으로 평가할 수 있다.
 
-## How can I edit this code?
+## 불편함
+- 타이머를 계속 맞추기 귀찮음
+- 매 세션마다 다른 노트 툴을 활용해 기록하는게 귀찮음
+- 매일, 매주, 매달 통계를 정리하고 파악하기 힘듬 
+- 시각적인 자료로 현황을 보기 힘듬 (ex, 스트릭)
 
-There are several ways of editing your application.
 
-**Use Lovable**
+## 사용자
+- 학습자: 집중 시간 파악, 회고를 통한 자기 성찰, 자신의 루틴 파악, 동기부여
+- 스터디 그룹 리더(혹은 선생님): 팀원 학습 현황 파악, 팀원 루틴 파악
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cd81c43d-276d-4614-affb-ab5dd5cfa9ab) and start prompting.
+## 니즈
+- 학습자: 
+	- 타이머 기능 사용 가능
+	- 짧은 시간동안 집중한 내용에 대해 회고/정리를 진행하기 때문에 생생한 정보를 작성 가능
+	- 자신이 하는 루틴을 명확하게 파악 가능
+	- 자신의 집중 시간을 시각화하여 동기부여 가능
+- 스터디 그룹 리더: 
+	- 학습자가 학습을 따라오고 있는지 파악
+	- 어느정도의 시간을 할애하고 있는지를 파악
 
-Changes made via Lovable will be committed automatically to this repo.
+## 페르소나
+- 김지수
+    - 배경: 22세 대학생, 컴퓨터공학과 재학 중. 알고리즘과 CS 지식을 혼자 학습 중이며 취업을 준비하고 있다. 
+    - 상황: 혼자 공부하면서 집중은 하지만, 무엇을 얼마나 했는지 기록되지 않아 허무함을 느낌. 회고를 따로 기록하려 했지만 여러 노트 앱을 전전하는 게 번거로워 중단한 경험이 있다.
+    - 목표: 하루 동안 집중한 시간과 학습 내용을 한 눈에 보고 싶다. 축적된 기록을 기반으로 성장하고 있다는 느낌을 받고 싶다.
+    - 주요 불편: 타이머 반복 설정 귀찮음, 회고 작성 위치 분산, 하루/주간 학습량 파악 어려움, 통계 시각화 없음
+    - 니즈: 타이머와 회고가 한 앱 안에서 자동으로 연결되길 원함. 학습 기록이 스트릭이나 차트로 시각화되어 동기부여되기를 바람.
+- 부기
+    - 배경: 백엔드 개발자를 지망하는 25세, 우아한 테크코스를 다니고 있음.
+    - 상황: 혼자 열심히 공부하지만 매번 정량적으로 얼마나 하는지 알 수 없어 자신의 성장도 알기 어렵고, 얼마나 해야 만족할 수 있는지도 알기 어려움. 회고도 하루가 끝난 후에 작성하려 하면 기억이 잘 나지 않고 거부감이 들어서 어려움.
+    - 목표: 타이머가 종료될 때 자동으로 기록되고, 매일 얼마나 집중했는지 시간을 기준으로 볼 수 있었으면 좋겠다. 특히 GitHub 스트릭처럼 시각화된 통계를 통해 성취감을 느끼고 싶다.
+    - 주요 불편: 타이머 반복 설정이 귀찮음. 회고를 몰아서 쓰면 기억이 흐려져 생생한 정보가 사라짐. 매번 집중량을 수동으로 기록하는 것도 번거로움. 통계를 직접 만들거나 확인하는 것도 어렵고 귀찮음.
+    - 니즈: 타이머와 기록이 자동으로 연동되며, 기록된 데이터가 시각적으로 표현되었으면 좋겠음. 회고는 매 세션 직후 바로 간단히 기록할 수 있어야 하며, 이 기록들이 모여 하루 전체 회고로 연결되었으면 좋겠음.
 
-**Use your preferred IDE**
+- 박민호
+    - 배경: 27세 비전공 출신 취준생. 국비교육을 수료하고 스터디 그룹을 직접 만들어 운영 중.
+    - 상황: 팀원들이 실제로 공부하는지 파악이 어렵고, 회고도 형식적으로 작성되는 경우가 많아 리더로서 부담이 큼. 팀원별 루틴을 객관적으로 보고 피드백하고 싶음.
+    - 목표: 팀원 학습 시간과 회고를 정량적으로 파악해 자율성과 책임감을 높이고, 그룹의 성장 추이를 분석하고 싶음.
+    - 주요 불편: 회고 수합 및 양식 통일의 번거로움, 학습 시간 파악 불가, 팀원 간 비교 및 개선 포인트 도출 어려움
+    - 니즈: 학습 시간 및 회고 자동 수집, 개인별 학습 시각화(차트/스트릭), 그룹 통계 확인 및 피드백 근거 제공
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 시나리오 1: 김지수 - 하루 집중 학습 루틴
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+김지수는 아침에 자리에 앉아 브라우저로 ‘Lovable’ 웹앱을 엽니다.  
+홈 화면에는 전날 쌓은 토마토 개수와 달력에 표시된 스트릭이 보입니다.  
+오늘도 집중해서 공부하고 싶은 김지수는 ‘토마토 시작하기’ 버튼을 눌러 타이머를 작동시킵니다.  
+25분간 알고리즘 문제 풀이에 집중한 뒤, 타이머가 종료되자 자동으로 회고 입력창이 나타납니다.  
+김지수는 “DFS 재귀 구조 정리, 헷갈렸던 케이스 정리함”이라고 간단히 작성하고 저장합니다.  
+이어지는 짧은 휴식 시간 후, 김지수는 두 번째 토마토를 시작합니다.  
+이 과정을 하루 동안 반복해 총 5개의 토마토를 완수한 김지수는, 하루 회고 페이지로 이동합니다.  
+모든 세션 회고가 시간 순서대로 정리되어 있으며, 집중 시간 총합도 확인할 수 있습니다.  
+김지수는 만족감을 느끼며, 시각화된 그래프와 스트릭을 보며 내일도 이어가야겠다는 의지를 다집니다.
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 시나리오 2: 부기 - 성장 피드백을 원하는 집중 학습자
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+부기는 오후가 되자 집중을 위해 ‘Lovable’ 웹앱을 실행합니다.  
+홈 화면에서 이번 주의 집중 시간 그래프를 확인하고, 지난주보다 성과가 떨어졌다는 것을 인식합니다.  
+성장을 유지하고 싶어진 부기는 ‘토마토 시작하기’를 눌러 40분 집중 세션을 시작합니다.  
+타이머가 종료되자 회고 입력창이 뜨고, 부기는 “TDD 패턴 정리 및 예외 처리 전략 복습”이라고 입력합니다.  
+하루 동안 총 6개의 토마토를 완수한 부기는 대시보드에서 전체 학습 시간을 확인합니다.  
+시간대별 집중 분포, 태그별 학습 비중, 그리고 스트릭이 그래프로 나타납니다.  
+부기는 하루 회고 페이지에서 "AI 피드백 받기" 버튼을 눌러 gemini API를 통해 요약된 피드백을 받습니다.  
+자신의 학습 패턴을 객관적으로 파악한 부기는 내일 어떤 방향으로 공부할지 계획을 세웁니다.
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## 시나리오 3: 박민호 - 팀원의 학습 루틴을 관리하는 스터디 리더
 
-**Edit a file directly in GitHub**
+스터디를 운영 중인 박민호는 아침에 ‘Lovable’ 웹앱을 실행합니다.  
+대시보드에는 팀원별 오늘의 토마토 수행 개수와 스트릭 유지 현황이 표시됩니다.  
+민호는 김지수의 학습 데이터를 클릭해 세션별 회고와 시간대별 집중 시간 분포를 확인합니다.  
+김지수가 저녁 이후 집중도가 떨어진 것을 확인한 민호는 피드백 메모를 작성합니다.  
+이어서 주간 요약 페이지에서 전체 팀원의 집중 시간 합산, 평균 세션 수, 회고 작성률 등의 데이터를 확인합니다.  
+민호는 주간 회고 미팅에서 이 데이터를 기반으로 피드백을 전달하고, 다음 주 목표를 설정합니다.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
 
-**Use GitHub Codespaces**
+## 추가 요구사항
+1. 다양한 시각화 종류 선택 가능
+	- 주간 집중 시간, 월간 집중 시간, 파이그래프, 시간별 집중 시간(오전, 오후, 저녁, 심야) 등등...
+2. 통계의 다양화
+	- 지난주에 비한 증감(같은 요일 기준)
+	- 등등..
+3. 세션이라는 용어 대신 토마토(세션)으로 표현, 전체적인 디자인 색감을 토마토로 해주고 배경에 종이 질감을 추가
+4. 회고 페이지 따로 추가
+5. 웹 상에서 알람을 허용받고, 하나의 토마토(세션) 종료시 알람을 줌
+6. 외부 기능들은(소리 자료, 외부 API 키 등..) 모두 목킹하고 TODO 주석 추가
+7. 달력에 현재 초록색의 진함, 연함으로 토마토(세션)의 수를 표현하고 있는데, 실제 토마토를 넣어서 갯수를 표현
+8. 회고 페이지에서는 회고를 바탕으로 ai 피드백 받기 가능 (설정에서 gemini 2.5 flash api key 를 사용자에게 입력받을 수 있음)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 가치
+주요 가치는 학습자가 충분한 동기부여를 얻을 수 있도록 도와준다. 
+기록을 통해 자신의 루틴에서 어떤 부분을 고쳐야 할지 아니면 쓸대없는 시간을 많이 사용하지는 않는지 파악할 수 있도록 하여 메타인지를 높인다.
 
-## What technologies are used for this project?
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
 
-## How can I deploy this project?
+# 🍅 tomato! (session-bloom-tracker) 주요 기능 목록
 
-Simply open [Lovable](https://lovable.dev/projects/cd81c43d-276d-4614-affb-ab5dd5cfa9ab) and click on Share -> Publish.
+## 1. 포모도로 타이머
+- 포모도로(집중) 세션, 짧은 휴식, 긴 휴식 타이머 제공
+- 세션 시간(분/초) 설정 가능 (테스트용으로 초 단위도 지원)
+- 세션 시작/일시정지/재시작/완료 기능
+- 세션 종료 시 알림음 및 브라우저 알림 지원
+- 세션 종료 후 회고(Reflection) 작성 유도
 
-## Can I connect a custom domain to my Lovable project?
+## 2. 세션 기록 및 통계
+- 각 세션의 날짜, 유형, 실제 소요 시간(초 단위), 회고, 생성 시각 저장
+- 세션 기록을 기반으로 다양한 통계 제공:
+  - 오늘/이번주/지난주/전체 집중 시간(분/시간)
+  - 주간 변화율(지난주 대비 이번주 변화 %)
+  - 일별/주별 토마토 개수 및 집중 시간
+  - 시간대별(아침/오후/저녁/밤) 집중 통계
 
-Yes, you can!
+## 3. 회고(Reflection) 관리
+- 각 세션별로 회고 작성 및 수정 가능
+- 회고 탭에서 날짜별로 회고 모아보기
+- 회고가 있는 세션만 필터링 가능
+- 회고별 AI 피드백(Gemini API 활용) 기능 제공  
+  (API 키 입력 시, 회고 내용을 분석해 학습 패턴/강점/개선점/제안 등 피드백 제공)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 4. 캘린더 뷰
+- 달력에서 날짜별로 세션/회고 기록 확인
+- 날짜별 토마토 개수, 회고 내용, 집중 시간 표시
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 5. 설정(Setting)
+- 포모도로/휴식 시간, 자동시작, 알림/사운드, 연속 집중 목표 등 설정 가능
+- 설정값은 앱 내에서 즉시 반영
