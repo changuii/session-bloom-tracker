@@ -27,7 +27,7 @@ export const ReflectionModal = ({ isOpen, onClose, onSubmit, sessionNumber }: Re
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-sm border-red-200">
+      <DialogContent className="sm:max-w-md bg-white border-red-200">
         <DialogHeader>
           <DialogTitle className="text-center text-red-800 font-handwriting">
             🍅 토마토 {sessionNumber} 회고

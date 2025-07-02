@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion, AnimatePresence } from 'framer-motion';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { StatsView } from '@/components/StatsView';
 import { CalendarView } from '@/components/CalendarView';
 import { ReflectionView } from '@/components/ReflectionView';
 import { SettingsView } from '@/components/SettingsView';
+import { HelpView } from '@/components/HelpView';
 import { SessionData, PomodoroSettings } from '@/types/pomodoro';
 
 const Index = () => {
   const [sessions, setSessions] = useState<SessionData[]>([]);
+  const [activeTab, setActiveTab] = useState('timer');
+  const [tomatoCount, setTomatoCount] = useState(0);
   const [settings, setSettings] = useState<PomodoroSettings>({
     focusTime: 25,
     shortBreak: 5,
@@ -48,6 +51,17 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem('pomodoro-settings', JSON.stringify(settings));
   }, [settings]);
+
+  // Sync tomato count with actual completed sessions
+  useEffect(() => {
+    const completedFocusSessions = sessions.filter(s => s.type === 'focus' && s.completed);
+    const actualTomatoCount = completedFocusSessions.length;
+    
+    // Only update if the count is different to avoid infinite loops
+    if (actualTomatoCount !== tomatoCount) {
+      setTomatoCount(actualTomatoCount);
+    }
+  }, [sessions, tomatoCount]);
 
   const addSession = (session: SessionData) => {
     setSessions(prev => [...prev, session]);
@@ -101,55 +115,163 @@ const Index = () => {
           <button onClick={insertMockData} className="px-4 py-2 rounded bg-green-600 text-white font-bold shadow hover:bg-green-700 transition">Mock 데이터 삽입</button>
         </div>
 
-        <Tabs defaultValue="timer" className="max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-5 mb-8 bg-white/20 border border-white/30 backdrop-blur-2xl shadow-2xl">
-            <TabsTrigger value="timer" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
-              🍅 타이머
-            </TabsTrigger>
-            <TabsTrigger value="stats" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
-              📊 통계
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
-              📅 달력
-            </TabsTrigger>
-            <TabsTrigger value="reflection" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
-              📝 회고
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-red-100 data-[state=active]:text-red-800">
-              ⚙️ 설정
-            </TabsTrigger>
-          </TabsList>
+        {/* Custom tab navigation */}
+        <div className="max-w-6xl mx-auto">
+          <div className="relative mb-8">
+            <div className="grid w-full grid-cols-6 bg-white border border-gray-200 shadow-sm rounded-md relative">
+              <button
+                onClick={() => setActiveTab('timer')}
+                className={`flex items-center justify-center gap-2 py-3 px-4 relative z-10 transition-colors ${
+                  activeTab === 'timer' ? 'text-red-800' : 'text-gray-600 hover:text-red-600'
+                }`}
+              >
+                🍅 타이머
+              </button>
+              <button
+                onClick={() => setActiveTab('stats')}
+                className={`flex items-center justify-center gap-2 py-3 px-4 relative z-10 transition-colors ${
+                  activeTab === 'stats' ? 'text-red-800' : 'text-gray-600 hover:text-red-600'
+                }`}
+              >
+                📊 통계
+              </button>
+              <button
+                onClick={() => setActiveTab('calendar')}
+                className={`flex items-center justify-center gap-2 py-3 px-4 relative z-10 transition-colors ${
+                  activeTab === 'calendar' ? 'text-red-800' : 'text-gray-600 hover:text-red-600'
+                }`}
+              >
+                📅 달력
+              </button>
+              <button
+                onClick={() => setActiveTab('reflection')}
+                className={`flex items-center justify-center gap-2 py-3 px-4 relative z-10 transition-colors ${
+                  activeTab === 'reflection' ? 'text-red-800' : 'text-gray-600 hover:text-red-600'
+                }`}
+              >
+                📝 회고
+              </button>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`flex items-center justify-center gap-2 py-3 px-4 relative z-10 transition-colors ${
+                  activeTab === 'settings' ? 'text-red-800' : 'text-gray-600 hover:text-red-600'
+                }`}
+              >
+                ⚙️ 설정
+              </button>
+              <button
+                onClick={() => setActiveTab('help')}
+                className={`flex items-center justify-center gap-2 py-3 px-4 relative z-10 transition-colors ${
+                  activeTab === 'help' ? 'text-red-800' : 'text-gray-600 hover:text-red-600'
+                }`}
+              >
+                ❓ 도움말
+              </button>
+              
+              {/* Animated background indicator */}
+              <motion.div
+                className="absolute inset-0 bg-red-100 rounded-md"
+                layoutId="activeTab"
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                style={{
+                  width: `${100 / 6}%`,
+                  left: `${(activeTab === 'timer' ? 0 : 
+                          activeTab === 'stats' ? 1 : 
+                          activeTab === 'calendar' ? 2 : 
+                          activeTab === 'reflection' ? 3 : 
+                          activeTab === 'settings' ? 4 : 5) * (100 / 6)}%`
+                }}
+              />
+            </div>
+          </div>
 
-          <TabsContent value="timer">
-            <PomodoroTimer 
-              settings={settings} 
-              onSessionComplete={addSession}
-            />
-          </TabsContent>
+          {/* Timer component - always rendered */}
+          <div style={{ display: activeTab === "timer" ? "block" : "none" }}>
+            <motion.div
+              key="timer"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <PomodoroTimer 
+                settings={settings} 
+                onSessionComplete={addSession}
+                tomatoCount={tomatoCount}
+                onSettingsChange={setSettings}
+              />
+            </motion.div>
+          </div>
 
-          <TabsContent value="stats">
-            <StatsView sessions={sessions} settings={settings} />
-          </TabsContent>
+          {/* Other tabs with AnimatePresence */}
+          <AnimatePresence mode="wait">
+            {activeTab === "stats" && (
+              <motion.div
+                key="stats"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <StatsView sessions={sessions} settings={settings} />
+              </motion.div>
+            )}
 
-          <TabsContent value="calendar">
-            <CalendarView sessions={sessions} />
-          </TabsContent>
+            {activeTab === "calendar" && (
+              <motion.div
+                key="calendar"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <CalendarView sessions={sessions} />
+              </motion.div>
+            )}
 
-          <TabsContent value="reflection">
-            <ReflectionView 
-              sessions={sessions} 
-              onUpdateSession={updateSession}
-              geminiApiKey={settings.geminiApiKey}
-            />
-          </TabsContent>
+            {activeTab === "reflection" && (
+              <motion.div
+                key="reflection"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <ReflectionView 
+                  sessions={sessions} 
+                  onUpdateSession={updateSession}
+                  geminiApiKey={settings.geminiApiKey}
+                />
+              </motion.div>
+            )}
 
-          <TabsContent value="settings">
-            <SettingsView 
-              settings={settings} 
-              onSettingsChange={setSettings} 
-            />
-          </TabsContent>
-        </Tabs>
+            {activeTab === "settings" && (
+              <motion.div
+                key="settings"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <SettingsView 
+                  settings={settings} 
+                  onSettingsChange={setSettings} 
+                />
+              </motion.div>
+            )}
+
+            {activeTab === "help" && (
+              <motion.div
+                key="help"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <HelpView onTabChange={setActiveTab} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

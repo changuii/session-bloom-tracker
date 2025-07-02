@@ -287,7 +287,7 @@ ${reflections.map((r, i) => `${i + 1}. ${r}`).join('\n')}
       </div>
 
       <Dialog open={!!selectedSession} onOpenChange={() => setSelectedSession(null)}>
-        <DialogContent className="bg-white/95 backdrop-blur-sm border-red-200">
+        <DialogContent className="bg-white border-red-200">
           <DialogHeader>
             <DialogTitle className="text-red-800 font-handwriting">
               🍅 회고 {selectedSession ? '수정' : '작성'}

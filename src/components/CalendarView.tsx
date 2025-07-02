@@ -158,7 +158,7 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
       </Card>
 
       <Dialog open={!!selectedDate} onOpenChange={() => setSelectedDate(null)}>
-        <DialogContent className="bg-white/95 backdrop-blur-sm border-red-200">
+        <DialogContent className="bg-white border-red-200">
           <DialogHeader>
             <DialogTitle className="text-red-800 font-handwriting">
               📅 {selectedDate && new Date(selectedDate).toLocaleDateString('ko-KR', {
@@ -174,7 +174,7 @@ export const CalendarView = ({ sessions }: CalendarViewProps) => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-red-50 rounded-lg">
                   <div className="text-2xl font-bold text-red-700">
-                    {Math.round(selectedDateData.totalFocusTime)}분
+                    {Math.round(selectedDateData.totalFocusTime / 60)}분
                   </div>
                   <div className="text-sm text-red-600">총 집중 시간</div>
                 </div>
