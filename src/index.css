@@ -164,3 +164,11 @@
 .focus-glow {
   box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
 }
+
+@import url('//fonts.googleapis.com/earlyaccess/hanna.css');
+
+html, body, #root, * {
+    font-family: 'Hanna', sans-serif !important;
+}
+
+/* 기존 폰트 관련 스타일은 모두 Hanna로 통일 */
