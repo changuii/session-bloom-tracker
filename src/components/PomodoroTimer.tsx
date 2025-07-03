@@ -516,7 +516,11 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
 
   useEffect(() => {
     if (!localStorage.getItem('hasSeenGuide')) {
-      setShowGuideModal(true);
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        setShowGuideModal(false);
+      } else {
+        setShowGuideModal(true);
+      }
     }
   }, []);
 
@@ -528,15 +532,15 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
   };
 
   return (
-    <div className="flex flex-col items-center space-y-6">
-      <Card className="w-full max-w-md">
-        <CardContent className="p-8 text-center">
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-red-800 mb-2 font-handwriting">
+    <div className="flex flex-col items-center w-full px-2 sm:px-4 md:px-0 space-y-4 md:space-y-6 max-w-lg mx-auto">
+      <Card className="w-full max-w-full md:max-w-md rounded-xl md:rounded-2xl shadow-md md:shadow-lg p-2 md:p-8">
+        <CardContent className="p-3 md:p-8 text-center flex flex-col items-center">
+          <div className="mb-3 md:mb-6">
+            <h2 className="text-lg md:text-2xl font-semibold text-red-800 mb-1 md:mb-2 font-handwriting">
               {getSessionLabel()}
             </h2>
             <div 
-              className={`text-6xl font-mono font-bold mb-4 drop-shadow-sm transition-colors ${
+              className={`text-3xl md:text-6xl font-mono font-bold mb-2 md:mb-4 drop-shadow-sm transition-colors ${
                 currentSession === 'focus' && timerState === 'idle'
                   ? 'text-red-900 cursor-pointer hover:text-red-700'
                   : 'text-red-900 cursor-default'
@@ -545,16 +549,15 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
               title={currentSession === 'focus' && timerState === 'idle' ? "클릭하여 시간 수정" : ""}
             >
               {formatTime(timeLeft)}
-
             </div>
             <Progress 
               value={progress} 
-              className="h-3 mb-4" 
+              className="h-2 md:h-3 mb-2 md:mb-4" 
               style={{
                 background: 'linear-gradient(90deg, #fecaca 0%, #fca5a5 50%, #f87171 100%)'
               }}
             />
-            <p className="text-sm text-red-600 font-medium">
+            <p className="text-xs md:text-sm text-red-600 font-medium">
               {timerState === 'running' ? '🔥 진행 중' : 
                timerState === 'paused' ? '⏸️ 일시정지' :
                timerState === 'completed' ? '✅ 완료' : '⏳ 준비'}
