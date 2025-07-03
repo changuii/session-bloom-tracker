@@ -15,6 +15,8 @@ interface ReflectionModalProps {
 export const ReflectionModal = ({ isOpen, onClose, onSubmit, sessionNumber }: ReflectionModalProps) => {
   const [reflection, setReflection] = useState('');
 
+  console.log('ReflectionModal render:', { isOpen, sessionNumber });
+
   const handleSubmit = () => {
     onSubmit(reflection);
     setReflection('');

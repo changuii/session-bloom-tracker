@@ -22,6 +22,11 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
   const [timerState, setTimerState] = useState<TimerState>('idle');
   const [currentSession, setCurrentSession] = useState<SessionType>('focus');
   const [showReflection, setShowReflection] = useState(false);
+
+  // Debug effect for showReflection state
+  useEffect(() => {
+    console.log('showReflection state changed:', showReflection);
+  }, [showReflection]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [isEditingTime, setIsEditingTime] = useState(false);
   const [editingTime, setEditingTime] = useState(settings.focusTime);
@@ -134,8 +139,10 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
   };
 
   const completeSession = useCallback(() => {
+    console.log('completeSession called with currentSession:', currentSession);
     // Only call onSessionComplete for non-focus sessions, or for focus sessions after reflection
     if (currentSession === 'focus') {
+      console.log('Focus session completed, showing reflection modal');
       playNotificationSound();
       setShowReflection(true);
     } else {
@@ -143,7 +150,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
         id: currentSessionId || Date.now().toString(),
         date: new Date().toISOString().split('T')[0],
         type: currentSession,
-        duration: getCurrentSessionDuration() - timeLeft,
+        duration: getCurrentSessionDuration(),
         completed: true,
         createdAt: Date.now()
       };
@@ -157,7 +164,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
       // 휴식 완료 후 다음 세션으로 이동하도록 플래그 설정
       setShouldMoveToNextSession(true);
     }
-  }, [currentSession, currentSessionId, onSessionComplete, getCurrentSessionDuration, settings.soundEnabled, settings.notificationEnabled, toast, timeLeft]);
+  }, [currentSession, currentSessionId, onSessionComplete, getCurrentSessionDuration, settings.soundEnabled, settings.notificationEnabled, toast]);
 
   const nextSession = () => {
     if (currentSession === 'focus') {
@@ -261,54 +268,24 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
   };
 
   const skipSession = () => {
-    // Calculate actual elapsed time
-    let actualDuration = 0;
-    
-    if (startTimestamp) {
-      // If timer was running, calculate elapsed time
-      const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
-      const totalDuration = getCurrentSessionDuration();
-      actualDuration = Math.min(elapsed, totalDuration);
-    } else if (timerState === 'paused') {
-      // If timer was paused, use the difference between total duration and remaining time
-      const totalDuration = getCurrentSessionDuration();
-      actualDuration = totalDuration - timeLeft;
-    }
-    
-    // Create session data with actual elapsed time
-    const sessionData: SessionData = {
-      id: currentSessionId || Date.now().toString(),
-      date: new Date().toISOString().split('T')[0],
-      type: 'focus',
-      duration: actualDuration,
-      completed: true,
-      createdAt: Date.now()
-    };
-    
-    onSessionComplete(sessionData);
-    
-    const currentTomatoNumber = tomatoCount + 1;
-    showNotification('🍅 토마토 완료!', `집중 토마토 ${currentTomatoNumber}을 완료했습니다. 잘하셨어요!`);
-    toast({
-      title: '🍅 토마토 완료!',
-      description: `집중 토마토 ${currentTomatoNumber}을 완료했습니다!`
-    });
-    
-    setTimerState('completed');
-    // 다음 세션으로 이동 (토마토 카운트는 자동으로 동기화됨)
-    nextSession();
+    console.log('Skip session clicked, showing reflection modal');
+    // 토마토 완료 버튼을 클릭해도 회고 창이 나오도록 수정
+    playNotificationSound();
+    setShowReflection(true);
   };
 
   // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (timerState === 'running' && timeLeft > 0) {
+    if (timerState === 'running') {
       interval = setInterval(() => {
         if (startTimestamp) {
           const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
           const newTimeLeft = Math.max(getCurrentSessionDuration() - elapsed, 0);
           setTimeLeft(newTimeLeft);
           if (newTimeLeft <= 0) {
+            console.log('Timer reached zero, completing session');
+            setTimeLeft(0);
             completeSession();
             clearInterval(interval);
           }
@@ -346,11 +323,28 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
 
   const handleReflectionSubmit = (reflection: string) => {
     const currentTomatoNumber = tomatoCount + 1;
+    
+    // Calculate actual elapsed time
+    let actualDuration = 0;
+    if (startTimestamp) {
+      // If timer was running, calculate elapsed time
+      const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
+      const totalDuration = getCurrentSessionDuration();
+      actualDuration = Math.min(elapsed, totalDuration);
+    } else if (timerState === 'paused') {
+      // If timer was paused, use the difference between total duration and remaining time
+      const totalDuration = getCurrentSessionDuration();
+      actualDuration = totalDuration - timeLeft;
+    } else {
+      // If timer was idle or completed, use full duration
+      actualDuration = getCurrentSessionDuration();
+    }
+    
     const sessionData: SessionData = {
       id: currentSessionId,
       date: new Date().toISOString().split('T')[0],
       type: 'focus',
-      duration: getCurrentSessionDuration() - timeLeft,
+      duration: actualDuration,
       completed: true,
       reflection,
       createdAt: Date.now()
