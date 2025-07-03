@@ -1,8 +1,8 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { 
   Timer, 
   BarChart3, 
@@ -17,14 +17,140 @@ import {
   Lightbulb,
   Coffee,
   BookOpen,
-  Zap
+  Zap,
+  HelpCircle
 } from 'lucide-react';
 
 interface HelpViewProps {
   onTabChange?: (tab: string) => void;
 }
 
-export const HelpView = ({ onTabChange }: HelpViewProps) => {
+// Mobile Help Sheet Component
+const MobileHelpSheet = ({ onTabChange }: HelpViewProps) => {
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="fixed top-4 right-4 z-50 bg-red-50 border-red-200 text-red-700 hover:bg-red-100 shadow-lg"
+        >
+          <HelpCircle className="w-4 h-4 mr-2" />
+          도움말
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="text-xl font-bold text-red-800 font-handwriting">
+            🍅 회고 토마토 타이머 사용법
+          </SheetTitle>
+          <SheetDescription className="text-sm text-gray-600">
+            쉽고 간편하게 포모도로 타이머를 사용하고 회고를 작성해보세요!
+          </SheetDescription>
+        </SheetHeader>
+        
+        <div className="space-y-6 mt-4">
+          {/* 간단한 시작 가이드 */}
+          <Card className="border-red-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-red-800">🚀 빠른 시작</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                  <span>🍅 타이머 탭에서 '시작' 버튼 클릭</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                  <span>25분 집중 후 자동으로 회고 작성창 등장</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                  <span>📊 통계 탭에서 성장 확인</span>
+                </div>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <Button 
+                  size="sm" 
+                  className="bg-red-600 hover:bg-red-700 text-xs flex-1"
+                  onClick={() => onTabChange?.('timer')}
+                >
+                  타이머 시작
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-red-300 text-red-700 hover:bg-red-50 text-xs flex-1"
+                  onClick={() => onTabChange?.('stats')}
+                >
+                  통계 보기
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 주요 기능 */}
+          <Card className="border-orange-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-orange-800">✨ 주요 기능</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <Timer className="w-4 h-4 text-red-600" />
+                  <span className="font-medium">포모도로 타이머:</span>
+                  <span className="text-gray-600">25분 집중 + 5분 휴식</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-orange-600" />
+                  <span className="font-medium">즉시 회고:</span>
+                  <span className="text-gray-600">토마토 완료 직후 회고 작성</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-green-600" />
+                  <span className="font-medium">시각적 통계:</span>
+                  <span className="text-gray-600">스트릭, 차트로 성장 확인</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-blue-600" />
+                  <span className="font-medium">캘린더:</span>
+                  <span className="text-gray-600">날짜별 토마토 기록</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* FAQ */}
+          <Card className="border-gray-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-gray-800">❓ 자주 묻는 질문</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="font-medium text-gray-800 mb-1">Q. 타이머 시간을 바꿀 수 있나요?</p>
+                  <p className="text-gray-600">A. 설정 탭에서 집중/휴식 시간을 자유롭게 조정 가능합니다.</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800 mb-1">Q. 알림이 안 와요</p>
+                  <p className="text-gray-600">A. 브라우저 알림 권한을 허용해주세요.</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800 mb-1">Q. AI 피드백은 어떻게 받나요?</p>
+                  <p className="text-gray-600">A. 설정에서 Gemini API 키를 입력하면 회고 분석을 받을 수 있습니다.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+// Desktop Help Component (existing full content)
+const DesktopHelpView = ({ onTabChange }: HelpViewProps) => {
   const features = [
     {
       icon: <Timer className="w-6 h-6 text-red-600" />,
@@ -128,9 +254,11 @@ export const HelpView = ({ onTabChange }: HelpViewProps) => {
           </div>
         </div>
 
+        
+        
         <Separator />
 
-        {/* 포모도로 기법 소개 */}
+        
         <div className="space-y-4 sm:space-y-6">
           <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800">
             🍅 포모도로 기법이란?
@@ -149,116 +277,14 @@ export const HelpView = ({ onTabChange }: HelpViewProps) => {
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-6">
-                <Card className="bg-white border-red-200">
-                  <CardContent className="p-3 sm:p-4 text-center">
-                    <div className="text-2xl sm:text-3xl mb-2">🍅</div>
-                    <h4 className="font-semibold text-red-800 mb-2 text-sm sm:text-base">포모도로의 의미</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      이탈리아어로 <span className="font-semibold">"토마토"</span>를 뜻합니다. 
-                      시릴로가 사용한 토마토 모양 타이머에서 유래했어요!
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-white border-orange-200">
-                  <CardContent className="p-3 sm:p-4 text-center">
-                    <div className="text-2xl sm:text-3xl mb-2">⏰</div>
-                    <h4 className="font-semibold text-orange-800 mb-2 text-sm sm:text-base">과학적 시간 관리</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      <span className="font-semibold">25분 집중 + 5분 휴식</span>의 
-                      최적화된 사이클로 뇌의 집중력을 극대화합니다.
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-white border-green-200 sm:col-span-2 lg:col-span-1">
-                  <CardContent className="p-3 sm:p-4 text-center">
-                    <div className="text-2xl sm:text-3xl mb-2">🧠</div>
-                    <h4 className="font-semibold text-green-800 mb-2 text-sm sm:text-base">뇌과학적 효과</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      정기적인 휴식으로 <span className="font-semibold">집중력 회복</span>과 
-                      <span className="font-semibold">기억력 향상</span>을 동시에 달성합니다.
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
-                <div className="flex items-start gap-2 sm:gap-3">
-                  <div className="text-xl sm:text-2xl">💡</div>
-                  <div>
-                    <h4 className="font-semibold text-yellow-800 mb-2 text-sm sm:text-base">왜 25분일까요?</h4>
-                    <p className="text-xs sm:text-sm text-yellow-700">
-                      인간의 집중력은 보통 20-30분 정도가 최적입니다. 25분은 
-                      <span className="font-semibold">충분히 집중할 수 있으면서도 지치지 않는</span> 
-                      마법의 시간이에요! 그리고 5분 휴식은 뇌가 정보를 정리하고 
-                      다음 집중을 준비하는 데 딱 좋은 시간입니다. 🎯
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mt-4">
-                <Card className="bg-white border-blue-200">
-                  <CardContent className="p-3 sm:p-4">
-                    <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2 text-sm sm:text-base">
-                      🚀 포모도로 기법의 효과
-                    </h4>
-                    <ul className="space-y-2 text-xs sm:text-sm text-gray-700">
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500 mt-1">✓</span>
-                        <span><strong>집중력 향상:</strong> 명확한 시간 제한으로 더 집중할 수 있어요</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500 mt-1">✓</span>
-                        <span><strong>스트레스 감소:</strong> 정기적인 휴식으로 정신적 피로를 줄여요</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500 mt-1">✓</span>
-                        <span><strong>생산성 증대:</strong> 체계적인 시간 관리로 더 많은 일을 해낼 수 있어요</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500 mt-1">✓</span>
-                        <span><strong>기억력 개선:</strong> 휴식 시간에 뇌가 정보를 정리해요</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-white border-purple-200">
-                  <CardContent className="p-3 sm:p-4">
-                    <h4 className="font-semibold text-purple-800 mb-3 flex items-center gap-2 text-sm sm:text-base">
-                      🎯 우리 앱의 특별한 점
-                    </h4>
-                    <ul className="space-y-2 text-xs sm:text-sm text-gray-700">
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500 mt-1">🍅</span>
-                        <span><strong>즉시 회고:</strong> 토마토 완료 직후 생생한 기억으로 회고 작성</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500 mt-1">🤖</span>
-                        <span><strong>AI 피드백:</strong> 회고 내용을 바탕으로 개인 맞춤 분석</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500 mt-1">📊</span>
-                        <span><strong>시각적 통계:</strong> 성장 과정을 한눈에 확인</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500 mt-1">⚙️</span>
-                        <span><strong>유연한 설정:</strong> 본인에게 맞는 시간으로 조정 가능</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
+              
             </div>
           </div>
         </div>
 
         <Separator />
 
-        {/* 주요 기능 소개 */}
+        
         <div className="space-y-4 sm:space-y-6">
           <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800">
             🚀 주요 기능을 한눈에!
@@ -290,7 +316,7 @@ export const HelpView = ({ onTabChange }: HelpViewProps) => {
 
         <Separator />
 
-        {/* 사용법 가이드 */}
+        
         <div className="space-y-4 sm:space-y-6">
           <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800">
             📖 간단한 사용법
@@ -320,7 +346,7 @@ export const HelpView = ({ onTabChange }: HelpViewProps) => {
 
         <Separator />
 
-        {/* 사용자 후기 */}
+        
         <div className="space-y-4 sm:space-y-6">
           <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800">
             💬 많은 사용자들이 애용하고 있습니다
@@ -350,7 +376,7 @@ export const HelpView = ({ onTabChange }: HelpViewProps) => {
 
         <Separator />
 
-        {/* 시작하기 CTA */}
+        
         <div className="text-center space-y-3 sm:space-y-4 bg-gradient-to-r from-red-50 to-orange-50 p-4 sm:p-6 lg:p-8 rounded-2xl border-2 border-red-200">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
             🎯 지금 바로 시작해보세요!
@@ -379,7 +405,7 @@ export const HelpView = ({ onTabChange }: HelpViewProps) => {
           </div>
         </div>
 
-        {/* FAQ 섹션 */}
+        
         <div className="space-y-4 sm:space-y-6">
           <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800">
             ❓ 자주 묻는 질문
@@ -434,4 +460,20 @@ export const HelpView = ({ onTabChange }: HelpViewProps) => {
       </CardContent>
     </Card>
   );
-}; 
+};
+
+export const HelpView = ({ onTabChange }: HelpViewProps) => {
+  return (
+    <>
+      {/* Mobile: Show Sheet */}
+      <div className="block md:hidden">
+        <MobileHelpSheet onTabChange={onTabChange} />
+      </div>
+      
+      {/* Desktop: Show Full Content */}
+      <div className="hidden md:block">
+        <DesktopHelpView onTabChange={onTabChange} />
+      </div>
+    </>
+  );
+};
