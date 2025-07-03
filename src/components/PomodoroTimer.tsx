@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -22,6 +22,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
   const [timerState, setTimerState] = useState<TimerState>('idle');
   const [currentSession, setCurrentSession] = useState<SessionType>('focus');
   const [showReflection, setShowReflection] = useState(false);
+  const pipWindowRef = useRef<Window | null>(null);
 
   // Debug effect for showReflection state
   useEffect(() => {
@@ -374,6 +375,142 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
     }
   }, [timerState, timeLeft]);
 
+  // PiP 타이머 렌더 함수 (메인 타이머와 최대한 동일하게)
+  const renderPiPTimer = () => {
+    const pipWindow = pipWindowRef.current;
+    if (!pipWindow) return;
+    const pipDoc = pipWindow.document;
+    pipDoc.body.innerHTML = '';
+    // 폰트 링크 추가 (Pretendard, Noto Sans KR)
+    const fontPretendard = document.createElement('link');
+    fontPretendard.rel = 'stylesheet';
+    fontPretendard.href = 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css';
+    pipDoc.head.appendChild(fontPretendard);
+    const fontNotoSans = document.createElement('link');
+    fontNotoSans.rel = 'stylesheet';
+    fontNotoSans.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap';
+    pipDoc.head.appendChild(fontNotoSans);
+    // 스타일 복사 (메인 타이머와 완전히 동일하게)
+    const styles = document.createElement('style');
+    styles.textContent = `
+      body, .pip-card, .pip-title, .pip-timer, .pip-state {
+        font-family: Pretendard, 'Noto Sans KR', Arial, sans-serif !important;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background: #fff5f5;
+        color: #991b1b;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .pip-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px 0 #f8717133;
+        padding: 2rem 2.5rem;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+      }
+      .pip-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: #b91c1c;
+      }
+      .pip-timer {
+        font-size: 4rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        color: #7f1d1d;
+        letter-spacing: -0.04em;
+      }
+      .pip-progress {
+        width: 100%;
+        height: 12px;
+        background: #fecaca;
+        border-radius: 9999px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+      }
+      .pip-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #fecaca 0%, #fca5a5 50%, #f87171 100%);
+        transition: width 0.2s;
+      }
+      .pip-state {
+        font-size: 1rem;
+        color: #dc2626;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+      }
+    `;
+    pipDoc.head.appendChild(styles);
+    // 타이머 UI (토마토 이모지는 무조건 1개)
+    const pipContent = document.createElement('div');
+    pipContent.className = 'pip-card';
+    pipContent.innerHTML = `
+      <div class="pip-title">
+        <span>🍅</span>
+        <span>${getSessionLabel().replace(/🍅+/g, '').trim()}</span>
+      </div>
+      <div class="pip-timer">${formatTime(timeLeft)}</div>
+      <div class="pip-progress">
+        <div class="pip-progress-bar" style="width: ${(timeLeft / getCurrentSessionDuration()) * 100}%"></div>
+      </div>
+      <div class="pip-state">
+        <span>${timerState === 'running' ? '⏳' : timerState === 'paused' ? '⏸️' : timerState === 'completed' ? '✅' : '⏳'}</span>
+        <span>${timerState === 'running' ? '진행 중' : timerState === 'paused' ? '일시정지' : timerState === 'completed' ? '완료' : '준비'}</span>
+      </div>
+    `;
+    pipDoc.body.appendChild(pipContent);
+  };
+
+  // PiP 열기 함수
+  const openPiP = async () => {
+    if (!('documentPictureInPicture' in window)) {
+      alert('이 브라우저는 Document Picture-in-Picture API를 지원하지 않습니다.');
+      return;
+    }
+    try {
+      if (typeof (window as any).documentPictureInPicture.getWindow === 'function') {
+        const existingPiP = await (window as any).documentPictureInPicture.getWindow();
+        if (existingPiP) {
+          existingPiP.close();
+        }
+      }
+      const pipWindow = await (window as any).documentPictureInPicture.requestWindow({
+        width: 400,
+        height: 350,
+      });
+      pipWindowRef.current = pipWindow;
+      renderPiPTimer();
+    } catch (error) {
+      alert('PiP 창을 열 수 없습니다: ' + error);
+    }
+  };
+
+  // PiP 창이 열려 있으면 타이머 상태가 바뀔 때마다 PiP도 동기화
+  useEffect(() => {
+    if (pipWindowRef.current) {
+      renderPiPTimer();
+    }
+    // eslint-disable-next-line
+  }, [timeLeft, timerState, currentSession]);
+
   return (
     <div className="flex flex-col items-center space-y-6">
       <Card className="w-full max-w-md">
@@ -392,6 +529,7 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
               title={currentSession === 'focus' && timerState === 'idle' ? "클릭하여 시간 수정" : ""}
             >
               {formatTime(timeLeft)}
+
             </div>
             <Progress 
               value={progress} 
@@ -458,6 +596,18 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
                 className="bg-orange-600 hover:bg-orange-700 shadow-lg"
               >
                 다음 토마토
+              </Button>
+            )}
+
+            {/* PIP 버튼: 진행중일 때만 노출 */}
+            {timerState === 'running' && (
+              <Button
+                onClick={openPiP}
+                size="lg"
+                variant="outline"
+                className="border-red-300 text-red-700 hover:bg-red-50"
+              >
+                PIP
               </Button>
             )}
           </div>
