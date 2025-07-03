@@ -1,7 +1,7 @@
 ## 회고 포모도로 타이머
 - 쉽게 포모도로 타이머를 사용할 수 있게 해주고, 각 세션별로 회고를 도와준다.
 
-배포 링크: https://session-bloom-tracker.lovable.app/
+배포 링크: [토마토토!](https://tomatoto.vercel.app/)
 
 ## 목표
 - 간편하게 포모도로 타이머를 사용할 수 있다.
