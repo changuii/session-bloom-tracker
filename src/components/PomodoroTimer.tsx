@@ -8,6 +8,7 @@ import { Play, Pause, Square, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 interface PomodoroTimerProps {
   settings: PomodoroSettings;
@@ -23,6 +24,8 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
   const [currentSession, setCurrentSession] = useState<SessionType>('focus');
   const [showReflection, setShowReflection] = useState(false);
   const pipWindowRef = useRef<Window | null>(null);
+  const [showGuideModal, setShowGuideModal] = useState(false);
+  const [dontShowGuide, setDontShowGuide] = useState(false);
 
   // Debug effect for showReflection state
   useEffect(() => {
@@ -511,6 +514,19 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
     // eslint-disable-next-line
   }, [timeLeft, timerState, currentSession]);
 
+  useEffect(() => {
+    if (!localStorage.getItem('hasSeenGuide')) {
+      setShowGuideModal(true);
+    }
+  }, []);
+
+  const handleCloseGuide = () => {
+    setShowGuideModal(false);
+    if (dontShowGuide) {
+      localStorage.setItem('hasSeenGuide', 'true');
+    }
+  };
+
   return (
     <div className="flex flex-col items-center space-y-6">
       <Card className="w-full max-w-md">
@@ -696,6 +712,76 @@ export const PomodoroTimer = ({ settings, onSessionComplete, tomatoCount, onSett
         onSubmit={handleReflectionSubmit}
         sessionNumber={tomatoCount + 1}
       />
+
+      {/* 사용법 안내 모달 */}
+      <Dialog open={showGuideModal} onOpenChange={setShowGuideModal}>
+        <DialogContent className="max-w-2xl p-10">
+          <DialogHeader>
+            <DialogTitle className="text-2xl mb-6">서비스 사용법 안내</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mb-10">
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">⏱️</span>
+              <div className="text-lg text-gray-800 leading-relaxed">
+                <b>타이머 시작/일시정지/리셋</b><br/>
+                시작, 일시정지, 리셋 버튼으로 타이머를 조작할 수 있습니다.
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">⏳</span>
+              <div className="text-lg text-gray-800 leading-relaxed">
+                <b>시간 수정</b><br/>
+                타이머가 대기 중일 때(“시작” 전), 시간(분)을 클릭하면 원하는 시간으로 변경할 수 있습니다.
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">🍅</span>
+              <div className="text-lg text-gray-800 leading-relaxed">
+                <b>세션 라벨</b><br/>
+                현재 세션(예: “2번째 토마토”, “짧은 휴식”, “긴 휴식”)이 상단에 표시됩니다.
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">🖼️</span>
+              <div className="text-lg text-gray-800 leading-relaxed">
+                <b>작은 창(PIP) 모드</b><br/>
+                타이머가 진행 중일 때 “PIP” 버튼을 누르면 타이머를 작은 창(항상 위)에 띄울 수 있습니다.
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">✍️</span>
+              <div className="text-lg text-gray-800 leading-relaxed">
+                <b>회고 작성</b><br/>
+                집중 세션이 끝나면 회고(Reflection) 창이 자동으로 열립니다. 회고를 작성하면 세션 기록이 저장됩니다.
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">💾</span>
+              <div className="text-lg text-gray-800 leading-relaxed">
+                <b>자동 저장/복원</b><br/>
+                타이머 상태는 자동 저장되어 새로고침해도 이어서 사용할 수 있습니다.
+              </div>
+            </div>
+          </div>
+          <div className="text-base text-gray-600 mb-6">
+            💡 <b>추가 안내</b>: 휴식 세션에서는 “휴식 패스” 버튼으로 바로 다음 세션으로 넘어갈 수 있습니다.<br/>
+            세션이 끝나면 브라우저 알림과 소리로 알려줍니다(설정에 따라).
+          </div>
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              id="dontShowGuide"
+              checked={dontShowGuide}
+              onChange={e => setDontShowGuide(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="dontShowGuide" className="text-base text-gray-500">다시 보지 않기</label>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleCloseGuide} variant="default" className="text-lg px-6 py-2">닫기</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
